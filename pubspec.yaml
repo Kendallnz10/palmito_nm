@@ -1,0 +1,52 @@
+name: palmito_nm
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.6.0
+  cupertino_icons: ^1.0.8
+  google_fonts: ^8.0.2
+  intl: ^0.20.2
+  google_sign_in: ^6.2.1
+  flutter_facebook_auth: ^7.1.6
+  flutter_paypal_payment: ^1.0.8
+  xml: ^6.3.0
+  url_launcher: ^6.3.2
+  app_links: ^7.0.0
+
+  
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  # Añadimos la herramienta para generar los iconos
+  flutter_launcher_icons: ^0.13.1
+
+# Esta sección debe ir pegada al margen izquierdo
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  # CAMBIA ESTA LÍNEA:
+  image_path: "assets/img/logoapp2.png" 
+  adaptive_icon_background: "#F2E8D5"
+  # CAMBIA ESTA TAMBIÉN:
+  adaptive_icon_foreground: "assets/img/logoapp2.png"
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/img/logoapp2.png
+    - assets/img/
+    - assets/img/visa.png
+    - assets/img/mastercard.png
+    - assets/img/google_logo.png
+    - assets/img/facebook_logo.png
