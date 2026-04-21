@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 
 class UsuarioService {
 
-  final String baseUrl = "http://192.168.100.4:3000/usuarios";
+  final String baseUrl = "https://backend-palmitonm.onrender.com/usuarios";
 
   // 1. AUTENTICACIÓN (LOGIN)
 

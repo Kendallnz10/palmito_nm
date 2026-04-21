@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class HistorialService {
-  final String _baseUrl = "http://192.168.100.4:3000/historial"; 
+  final String _baseUrl = "https://backend-palmitonm.onrender.com/historial"; 
 
   Future<List<dynamic>> obtenerDetalleHistorial(int idPedido) async {
     try {

@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class PaypalService {
-  final String _baseUrl = "http://192.168.100.4:3000/paypal";
+  final String _baseUrl = "https://backend-palmitonm.onrender.com/paypal";
 
   Future<void> realizarPago({
     required BuildContext context,

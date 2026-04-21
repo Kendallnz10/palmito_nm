@@ -17,7 +17,7 @@ class DetalleHistorialScreen extends StatelessWidget {
 
   Future<List<dynamic>> fetchDetalle() async {
     try {
-      final url = Uri.parse('http://192.168.100.4:3000/historial/detalle/$idPedido');
+      final url = Uri.parse('https://backend-palmitonm.onrender.com/historial/detalle/$idPedido');
       final response = await http.get(url);
       
       if (response.statusCode == 200) {
@@ -106,7 +106,7 @@ class DetalleHistorialScreen extends StatelessWidget {
                         ? "" 
                         : (imgPath.startsWith('http') 
                             ? imgPath 
-                            : "http://192.168.100.4:3000${imgPath.startsWith('/') ? '' : '/'}$imgPath");
+                            : "https://backend-palmitonm.onrender.com${imgPath.startsWith('/') ? '' : '/'}$imgPath");
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),

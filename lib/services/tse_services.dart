@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class TSEService {
-  final String _urlBase = "http://192.168.100.4:3000/tse"; 
+  final String _urlBase = "https://backend-palmitonm.onrender.com/tse"; 
 
 Future<Map<String, dynamic>> consultarCedula(String cedula) async {
   try {

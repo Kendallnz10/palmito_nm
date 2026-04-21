@@ -25,7 +25,7 @@ class _VerificarCorreoState extends State<VerificarCorreo> {
   final Color cremaInput = const Color(0xFFF9F7F2);     
   final Color rojoElegante = const Color(0xFF9E2A2B);
 
-  final String baseUrl = "http://192.168.100.4:3000/usuarios"; 
+  final String baseUrl = "https://backend-palmitonm.onrender.com/usuarios"; 
 
   Future<void> _enviarCodigo() async {
     if (_correoController.text.trim().isEmpty) {

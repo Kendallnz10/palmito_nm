@@ -5,7 +5,7 @@ class TipoCambioService {
 
   Future<Map<String, double>> obtenerTipoCambio() async {
     try {
-      final url = Uri.parse("http://192.168.100.4:3000/tipo-cambio");
+      final url = Uri.parse("https://backend-palmitonm.onrender.com/tipo-cambio");
 
       final response = await http.get(url);
 

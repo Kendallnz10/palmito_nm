@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:palmito_nm/models/ubicacion.dart';
 
 class UbicacionService {
-  final String baseUrl = "http://192.168.100.4:3000"; 
+  final String baseUrl = "https://backend-palmitonm.onrender.com"; // URL de tu backend en Render
 
   Future<List<Pais>> getPaises() async {
     try {

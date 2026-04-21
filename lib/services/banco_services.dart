@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class BancoService {
-  final String baseUrl = "http://192.168.100.4:3000/banco";
+  // Reemplazamos la IP local por tu URL de Render
+  final String baseUrl = "https://backend-palmitonm.onrender.com/banco";
 
-  // --- 1. Consultar Nombre por Teléfono 
+  // --- 1. Consultar Nombre por Teléfono ---
   Future<String?> consultarNombrePorTelefono(String telefono) async {
     try {
       final response = await http.get(
@@ -72,7 +73,7 @@ class BancoService {
     }
   }
 
-  // --- 4. NUEVO: Procesar Registro de PayPal en Backend ---
+  // --- 4. Procesar Registro de PayPal en Backend ---
   Future<Map<String, dynamic>> pagarConPaypal({
     required double monto,
     required String orderID,

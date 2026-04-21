@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/producto.dart'; 
 
 class ProductoService {
-  final String _baseUrl = "http://192.168.100.4:3000/productos"; 
+  final String _baseUrl = "https://backend-palmitonm.onrender.com/productos"; 
 
   Future<List<Producto>> fetchProductos() async {
     try {

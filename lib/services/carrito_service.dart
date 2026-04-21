@@ -4,7 +4,7 @@ import '../models/carrito_item.dart';
 import '../models/producto.dart';
 
 class CarritoService {
-  final String baseUrl = "http://192.168.100.4:3000"; 
+  final String baseUrl = "https://backend-palmitonm.onrender.com"; // URL de tu backend en Render
 
   // 1. AGREGAR PRODUCTO
   Future<bool> agregarProducto(int idUsuario, int idProducto, int cantidad, double precio) async {
