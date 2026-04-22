@@ -1,0 +1,15 @@
+flutter_native_splash:
+  # Color de fondo (usa el crema que tienes en tu Login o el verde)
+  color: "#F2E8D5" 
+  
+  # Ruta de tu logo
+  image: assets/img/LOGOV2.png
+  
+  # Ajustes para que se vea bien en todas las versiones de Android
+  android_12:
+    image: assets/img/LOGOV2.png
+    color: "#F2E8D5"
+    icon_background_color: "#F2E8D5"
+
+  # Para que use toda la pantalla
+  fullscreen: true
