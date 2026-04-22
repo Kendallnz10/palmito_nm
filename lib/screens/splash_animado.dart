@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'login.dart'; // Asegúrate de que el nombre del archivo sea correcto (login.dart o login_screen.dart)
+import 'login.dart'; 
 
 class SplashAnimado extends StatefulWidget {
   const SplashAnimado({super.key});
@@ -15,14 +15,14 @@ class _SplashAnimadoState extends State<SplashAnimado> with SingleTickerProvider
   void initState() {
     super.initState();
     
-    // Configuración de la rotación
+    // VELOCIDAD: Subimos a 6 segundos para que el giro sea más lento
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
-    )..repeat(); // Gira indefinidamente
+      duration: const Duration(seconds: 6), 
+    )..repeat(); 
 
-    // Tiempo de espera para pasar a la siguiente pantalla
-    Future.delayed(const Duration(seconds: 4), () {
+    // TIEMPO DE ESPERA: Bajamos a 3 segundos para que sea más dinámico
+    Future.delayed(const Duration(milliseconds: 3000), () {
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -41,15 +41,19 @@ class _SplashAnimadoState extends State<SplashAnimado> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2E8D5), // Tu color crema
+      backgroundColor: const Color(0xFFF2E8D5),
       body: Center(
-        child: RotationTransition(
-          turns: _controller,
-          child: Image.asset(
-            'assets/img/LOGOV2.png',
-            height: 180,
-            errorBuilder: (context, error, stackTrace) => 
-                const Icon(Icons.eco, size: 100, color: Color(0xFF3F4E34)),
+        child: Padding(
+          padding: const EdgeInsets.all(40.0), // Margen para que no se corte
+          child: RotationTransition(
+            turns: _controller,
+            child: Image.asset(
+              'assets/img/LOGOV2.png',
+              height: 160, // Ajustamos el tamaño para que no se corte
+              fit: BoxFit.contain, // Asegura que la imagen quepa completa
+              errorBuilder: (context, error, stackTrace) => 
+                  const Icon(Icons.eco, size: 100, color: Color(0xFF3F4E34)),
+            ),
           ),
         ),
       ),
