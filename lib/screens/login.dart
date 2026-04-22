@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import '../services/usuario_service.dart';
-import 'catalogo_palmito.dart';
+import 'splash_animado.dart';
 import 'verificar_mfa_screen.dart';
 import 'opciones_recuperacion_screen.dart';
 import 'verificar_correo.dart';
@@ -21,9 +21,7 @@ class _LoginState extends State<Login> {
   final TextEditingController _passController = TextEditingController();
   final UsuarioService _usuarioService = UsuarioService();
   bool _cargando = false;
-  
-  // --- NUEVO ESTADO PARA LA CONTRASEÑA ---
-  bool _mostrarPass = false; 
+  bool _mostrarPass = false;
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     clientId: "626253654724-68sicbt3a4vgmlb7klmfi0tb195ik2bt.apps.googleusercontent.com",
@@ -37,59 +35,67 @@ class _LoginState extends State<Login> {
   final Color lavandaTextoBtn = const Color(0xFF6B6281);
 
   void _procesarRespuestaServicio(dynamic res, String correoFallback) {
-  if (mounted) setState(() => _cargando = false);
+    if (mounted) setState(() => _cargando = false);
 
-  // Verificamos si la respuesta del servidor de Render fue exitosa
-  if (res['statusCode'] == 200) {
-    final body = res['body'];
+    if (res['statusCode'] == 200) {
+      final body = res['body'];
 
-    // CASO 1: El correo NO existe en la base de datos
-    if (body['nuevoUsuario'] == true) {
-      final Map<String, dynamic> datosSeguros = 
-          (body['datosPrecargados'] != null) 
-          ? Map<String, dynamic>.from(body['datosPrecargados']) 
-          : {};
+      if (body['nuevoUsuario'] == true) {
+        final Map<String, dynamic> datosSeguros =
+            (body['datosPrecargados'] != null)
+                ? Map<String, dynamic>.from(body['datosPrecargados'])
+                : {};
 
-      Navigator.push(
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RegistrarCuenta(
+              correoVerificado: correoFallback,
+              datosGoogle: datosSeguros,
+            ),
+          ),
+        );
+      } 
+      else if (body['requiereMFA'] == true) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VerificarMFAScreen(idUsuario: body['id_usuario']),
+          ),
+        );
+      } 
+      else {
+        // AQUÍ NAVEGAMOS AL SPLASH ANIMADO PASANDO LOS DATOS
+        _irAlSplash(body['usuario']);
+      }
+    } else {
+      _mostrarAlerta(res['body']['mensaje'] ?? "Error en la autenticación");
+    }
+  }
+
+  void _irAlSplash(dynamic usuarioData) {
+    if (mounted) {
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => RegistrarCuenta(
-            correoVerificado: correoFallback,
-            datosGoogle: datosSeguros,
+          builder: (context) => SplashAnimado(
+            usuarioActual: usuarioData,
+            mfaActivo: usuarioData['mfa_activado'] ?? false,
+            tienePreguntas: usuarioData['preguntas_configuradas'] ?? false,
           ),
         ),
       );
-    } 
-    // CASO 2: El usuario ya existe y tiene MFA activo
-    else if (body['requiereMFA'] == true) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => VerificarMFAScreen(idUsuario: body['id_usuario']),
-        ),
-      );
-    } 
-    // CASO 3: El usuario ya existe y NO tiene MFA (o ya se validó)
-    else {
-      // Mandamos directamente al catálogo con los datos del usuario
-      _irAlCatalogo(body['usuario']);
     }
-  } else {
-    // Si el servidor responde con 401, 404 o 500
-    _mostrarAlerta(res['body']['mensaje'] ?? "Error en la autenticación");
   }
-}
 
   Future<void> _handleGoogleSignIn() async {
     try {
       setState(() => _cargando = true);
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      
       if (googleUser == null) {
         setState(() => _cargando = false);
         return;
       }
-
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final String? token = googleAuth.idToken;
       dynamic res;
@@ -105,11 +111,9 @@ class _LoginState extends State<Login> {
         };
         res = await _usuarioService.loginConGoogleManual(datosManuales);
       }
-
       _procesarRespuestaServicio(res, googleUser.email);
     } catch (error) {
       if (mounted) setState(() => _cargando = false);
-      debugPrint("Error Google Auth: $error");
       _mostrarAlerta("No se pudo conectar con Google.");
     }
   }
@@ -117,15 +121,12 @@ class _LoginState extends State<Login> {
   Future<void> _handleFacebookSignIn() async {
     try {
       setState(() => _cargando = true);
-
       final LoginResult result = await FacebookAuth.instance.login(
         permissions: ['email', 'public_profile'],
       );
-
       if (result.status == LoginStatus.success) {
         final AccessToken accessToken = result.accessToken!;
         final res = await _usuarioService.loginConFacebook(accessToken.tokenString);
-        
         final userData = await FacebookAuth.instance.getUserData();
         _procesarRespuestaServicio(res, userData['email'] ?? "");
       } else {
@@ -143,35 +144,17 @@ class _LoginState extends State<Login> {
   Future<void> _hacerLogin() async {
     final String userText = _usuarioController.text.trim();
     final String passText = _passController.text;
-
     if (userText.isEmpty || passText.isEmpty) {
       _mostrarAlerta("Ingrese usuario y contraseña");
       return;
     }
-
     setState(() => _cargando = true);
-
     try {
       final res = await _usuarioService.login(userText, passText);
       _procesarRespuestaServicio(res, "");
     } catch (e) {
       if (mounted) setState(() => _cargando = false);
       _mostrarAlerta("Error de conexión con el servidor");
-    }
-  }
-
-  void _irAlCatalogo(dynamic usuarioData) {
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => CatalogoPalmito(
-            usuarioActual: usuarioData,
-            mfaActivo: usuarioData['mfa_activado'] ?? false,
-            tienePreguntas: usuarioData['preguntas_configuradas'] ?? false,
-          ),
-        ),
-      );
     }
   }
 
@@ -204,19 +187,9 @@ class _LoginState extends State<Login> {
                   Text("Palmito NM", 
                     style: GoogleFonts.lora(fontSize: 34, fontWeight: FontWeight.bold, color: verdeBosque)),
                   const SizedBox(height: 40),
-                  
-                  // Campo Usuario
                   _buildField(_usuarioController, "Usuario", Icons.person_outline),
                   const SizedBox(height: 15),
-                  
-                  // Campo Contraseña con Botón de Ojo
-                  _buildField(
-                    _passController, 
-                    "Contraseña", 
-                    Icons.lock_outline, 
-                    isPassword: true
-                  ),
-                  
+                  _buildField(_passController, "Contraseña", Icons.lock_outline, isPassword: true),
                   const SizedBox(height: 10),
                   Align(
                     alignment: Alignment.centerRight,
@@ -267,7 +240,6 @@ class _LoginState extends State<Login> {
     );
   }
 
-  // --- WIDGET DE CAMPO DE TEXTO ACTUALIZADO ---
   Widget _buildField(TextEditingController controller, String hint, IconData icon, {bool isPassword = false}) {
     return Container(
       decoration: BoxDecoration(
@@ -277,23 +249,14 @@ class _LoginState extends State<Login> {
       ),
       child: TextField(
         controller: controller,
-        // Si es password, controla la visibilidad con el booleano
         obscureText: isPassword ? !_mostrarPass : false,
         style: GoogleFonts.montserrat(fontSize: 15),
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: verdeBosque, size: 22),
-          // --- AQUÍ ESTÁ EL BOTÓN DEL OJO ---
           suffixIcon: isPassword 
             ? IconButton(
-                icon: Icon(
-                  _mostrarPass ? Icons.visibility : Icons.visibility_off,
-                  color: verdeBosque.withOpacity(0.6),
-                ),
-                onPressed: () {
-                  setState(() {
-                    _mostrarPass = !_mostrarPass;
-                  });
-                },
+                icon: Icon(_mostrarPass ? Icons.visibility : Icons.visibility_off, color: verdeBosque.withOpacity(0.6)),
+                onPressed: () => setState(() => _mostrarPass = !_mostrarPass),
               )
             : null,
           hintText: hint,

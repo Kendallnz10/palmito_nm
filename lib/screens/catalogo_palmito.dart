@@ -13,12 +13,14 @@ class CatalogoPalmito extends StatefulWidget {
   final Map<String, dynamic> usuarioActual; 
   final bool mfaActivo;
   final bool tienePreguntas;
+  final List<Producto>? productosPreCargados;
 
   const CatalogoPalmito({
     super.key, 
     required this.usuarioActual,
     this.mfaActivo = true, 
     this.tienePreguntas = true,
+    this.productosPreCargados,
   });
 
   @override
@@ -43,7 +45,13 @@ class _CatalogoPalmitoState extends State<CatalogoPalmito> {
   @override
   void initState() {
     super.initState();
-    _futureProductos = _productoService.fetchProductos();
+
+    if (widget.productosPreCargados != null) {
+      _futureProductos = Future.value(widget.productosPreCargados);
+    } else {
+      _futureProductos = _productoService.fetchProductos();
+    }
+
     _sincronizarSeguridad();
 
     final id = widget.usuarioActual['id_usuario'] ?? widget.usuarioActual['ID_Usuario'] ?? 0;
@@ -192,16 +200,13 @@ class _CatalogoPalmitoState extends State<CatalogoPalmito> {
     }
   }
 
-  // ── HELPER: ¿es invitado? ──────────────────────────────────────────────────
   bool get _esInvitado {
     final id = widget.usuarioActual['id_usuario'] ?? widget.usuarioActual['ID_Usuario'] ?? 0;
     return id == 0;
   }
 
-  // ── LEADING DEL APPBAR ─────────────────────────────────────────────────────
   Widget _buildLeadingAppBar() {
     if (_esInvitado) {
-      // Botón "Iniciar sesión" compacto para invitados
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 14),
         child: TextButton(
@@ -229,7 +234,6 @@ class _CatalogoPalmitoState extends State<CatalogoPalmito> {
         ),
       );
     } else {
-      // Botón de notificaciones para usuarios autenticados
       return IconButton(
         icon: Icon(Icons.notifications_none_outlined, color: verdeBosque, size: 28),
         onPressed: () {
@@ -257,10 +261,7 @@ class _CatalogoPalmitoState extends State<CatalogoPalmito> {
         backgroundColor: Colors.white,
         elevation: 2,
         toolbarHeight: 80,
-
-        // ── CAMBIO PRINCIPAL: leading dinámico ────────────────────────────
         leading: _buildLeadingAppBar(),
-
         title: Image.asset(
           'assets/img/LOGOV2.png',
           height: 60,
@@ -327,7 +328,7 @@ class _CatalogoPalmitoState extends State<CatalogoPalmito> {
                             builder: (context) => DetalleProductoScreen(
                               listaProductos: productos, 
                               inicialIndex: index,
-                              usuarioActual: widget.usuarioActual 
+                              usuarioActual: widget.usuarioActual,
                             ),
                           ),
                         ).then((_) {
@@ -383,10 +384,29 @@ class _CatalogoPalmitoState extends State<CatalogoPalmito> {
                 producto.imagen,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                // ← Placeholder crema mientras carga la imagen
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Container(
+                    color: const Color(0xFFF2E8D5),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: const Color(0xFF7D9452),
+                        strokeWidth: 2,
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    ),
+                  );
+                },
                 errorBuilder: (context, error, stackTrace) => 
                   Container(
                     color: Colors.grey[100],
-                    child: const Center(child: Icon(Icons.image_not_supported, color: Colors.grey))
+                    child: const Center(
+                      child: Icon(Icons.image_not_supported, color: Colors.grey)
+                    ),
                   ),
               ),
             ),

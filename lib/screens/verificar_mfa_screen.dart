@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../services/usuario_service.dart';
 
 // --- PANTALLAS ---
-import 'catalogo_palmito.dart'; 
+import 'splash_animado.dart'; // IMPORTANTE: Cambiado de catalogo a splash
 
 class VerificarMFAScreen extends StatefulWidget {
   final dynamic idUsuario;
@@ -37,7 +37,6 @@ class _VerificarMFAScreenState extends State<VerificarMFAScreen> {
     setState(() => _cargando = true);
 
     try {
-      // Llamada al servicio
       final res = await _usuarioService.verificarMFA(widget.idUsuario, codigo);
       
       final int statusCode = res['statusCode'];
@@ -46,26 +45,23 @@ class _VerificarMFAScreenState extends State<VerificarMFAScreen> {
       if (mounted) setState(() => _cargando = false);
 
       if (statusCode == 200 && body != null) {
-        // --- LÓGICA DE EXTRACCIÓN ROBUSTA ---
-        // Buscamos el objeto 'usuario' en cualquier nivel del JSON
         var usuarioDataRaw = body['usuario'] ?? 
                              (body['body'] != null ? body['body']['usuario'] : null);
 
         if (usuarioDataRaw != null) {
           Map<String, dynamic> usuarioFinal = Map<String, dynamic>.from(usuarioDataRaw);
           
-          // Aseguramos que campos críticos existan para evitar crashes en el Catálogo
           usuarioFinal['nombre'] = usuarioFinal['nombre'] ?? usuarioFinal['Nombre'] ?? "Usuario";
           bool mfaActivo = usuarioFinal['mfa_activado'] == true || usuarioFinal['mfa_activado'] == 1;
 
           if (mounted) {
-            debugPrint(">>> LOGIN MFA EXITOSO: Bienvenido ${usuarioFinal['nombre']}");
+            debugPrint(">>> MFA EXITOSO: Navegando al Splash de carga...");
             
-            // Navegación limpia al Catálogo (Elimina el historial para seguridad)
+            // NAVEGACIÓN AL SPLASH ANIMADO
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (context) => CatalogoPalmito(
+                builder: (context) => SplashAnimado(
                   usuarioActual: usuarioFinal,
                   mfaActivo: mfaActivo,        
                   tienePreguntas: usuarioFinal['preguntas_configuradas'] ?? true,   
@@ -78,7 +74,6 @@ class _VerificarMFAScreenState extends State<VerificarMFAScreen> {
           _mostrarAlerta("Error: No se recibieron los datos del perfil.");
         }
       } else {
-        // Manejo de errores del servidor (Código incorrecto, expirado, etc.)
         String mensaje = (body != null && body['mensaje'] != null) 
             ? body['mensaje'] 
             : "Código de seguridad incorrecto";
@@ -87,7 +82,7 @@ class _VerificarMFAScreenState extends State<VerificarMFAScreen> {
     } catch (e) {
       if (mounted) setState(() => _cargando = false);
       debugPrint(">>> ERROR CRÍTICO VERIFICAR_MFA: $e");
-      _mostrarAlerta("Error de conexión con el servidor de Palmito NM");
+      _mostrarAlerta("Error de conexión con el servidor");
     }
   }
 
@@ -122,7 +117,6 @@ class _VerificarMFAScreenState extends State<VerificarMFAScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Icono de Seguridad
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -131,9 +125,7 @@ class _VerificarMFAScreenState extends State<VerificarMFAScreen> {
                 ),
                 child: Icon(Icons.security_update_good_outlined, size: 70, color: verdeBosque),
               ),
-              
               const SizedBox(height: 25),
-              
               Text(
                 "VERIFICACIÓN",
                 style: GoogleFonts.lora(
@@ -143,18 +135,13 @@ class _VerificarMFAScreenState extends State<VerificarMFAScreen> {
                   letterSpacing: 1.2
                 ),
               ),
-              
               const SizedBox(height: 12),
-              
               Text(
                 "Ingresa el código de 6 dígitos generado por tu aplicación de autenticación.",
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(fontSize: 14, color: Colors.black54, height: 1.5),
               ),
-              
               const SizedBox(height: 40),
-              
-              // Campo de entrada estilizado
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -187,10 +174,7 @@ class _VerificarMFAScreenState extends State<VerificarMFAScreen> {
                   ),
                 ),
               ),
-              
               const SizedBox(height: 40),
-              
-              // Botón de Acción
               SizedBox(
                 width: double.infinity,
                 height: 58,
@@ -218,9 +202,7 @@ class _VerificarMFAScreenState extends State<VerificarMFAScreen> {
                       ),
                 ),
               ),
-              
               const SizedBox(height: 30),
-              
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(

@@ -22,24 +22,32 @@ dependencies:
   app_links: ^7.0.0
   flutter_native_splash: ^2.4.7
 
-  
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  # Añadimos la herramienta para generar los iconos
   flutter_launcher_icons: ^0.13.1
+  image: ^4.8.0
 
-# Esta sección debe ir pegada al margen izquierdo
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  # CAMBIA ESTA LÍNEA:
-  image_path: "assets/img/logoapp2.png" 
+  image_path: "assets/img/logoapp2.png"
   adaptive_icon_background: "#F2E8D5"
-  # CAMBIA ESTA TAMBIÉN:
   adaptive_icon_foreground: "assets/img/logoapp2.png"
+
+flutter_native_splash:
+  color: "#F2E8D5"
+  image: assets/img/LOGOV2_splash.png   # ← cambia esto
+
+  android_gravity: center
+  ios_content_mode: center
+
+  android_12:
+    color: "#F2E8D5"
+    icon_background_color: "#F2E8D5"
+
+  fullscreen: true
 
 flutter:
   uses-material-design: true
