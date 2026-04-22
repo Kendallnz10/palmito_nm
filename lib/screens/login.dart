@@ -37,42 +37,48 @@ class _LoginState extends State<Login> {
   final Color lavandaTextoBtn = const Color(0xFF6B6281);
 
   void _procesarRespuestaServicio(dynamic res, String correoFallback) {
-    if (mounted) setState(() => _cargando = false);
+  if (mounted) setState(() => _cargando = false);
 
-    if (res['statusCode'] == 200) {
-      final body = res['body'];
+  // Verificamos si la respuesta del servidor de Render fue exitosa
+  if (res['statusCode'] == 200) {
+    final body = res['body'];
 
-      if (body['nuevoUsuario'] == true) {
-        final Map<String, dynamic> datosSeguros = 
-            (body['datosPrecargados'] != null) 
-            ? Map<String, dynamic>.from(body['datosPrecargados']) 
-            : {};
+    // CASO 1: El correo NO existe en la base de datos
+    if (body['nuevoUsuario'] == true) {
+      final Map<String, dynamic> datosSeguros = 
+          (body['datosPrecargados'] != null) 
+          ? Map<String, dynamic>.from(body['datosPrecargados']) 
+          : {};
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => RegistrarCuenta(
-              correoVerificado: correoFallback,
-              datosGoogle: datosSeguros,
-            ),
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RegistrarCuenta(
+            correoVerificado: correoFallback,
+            datosGoogle: datosSeguros,
           ),
-        );
-      } 
-      else if (body['requiereMFA'] == true) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => VerificarMFAScreen(idUsuario: body['id_usuario']),
-          ),
-        );
-      } 
-      else {
-        _irAlCatalogo(body['usuario']);
-      }
-    } else {
-      _mostrarAlerta(res['body']['mensaje'] ?? "Error en la autenticación");
+        ),
+      );
+    } 
+    // CASO 2: El usuario ya existe y tiene MFA activo
+    else if (body['requiereMFA'] == true) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VerificarMFAScreen(idUsuario: body['id_usuario']),
+        ),
+      );
+    } 
+    // CASO 3: El usuario ya existe y NO tiene MFA (o ya se validó)
+    else {
+      // Mandamos directamente al catálogo con los datos del usuario
+      _irAlCatalogo(body['usuario']);
     }
+  } else {
+    // Si el servidor responde con 401, 404 o 500
+    _mostrarAlerta(res['body']['mensaje'] ?? "Error en la autenticación");
   }
+}
 
   Future<void> _handleGoogleSignIn() async {
     try {
