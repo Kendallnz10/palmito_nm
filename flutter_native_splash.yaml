@@ -2,13 +2,15 @@ flutter_native_splash:
   color: "#F2E8D5"
   image: assets/img/LOGOV2.png
   
-  # Esto evita que la imagen se estire para llenar la pantalla
+  # Esto centra la imagen en versiones anteriores a Android 12
   android_gravity: center
   ios_content_mode: center
 
-  # Para Android 12 en adelante (donde suele dar más problemas de tamaño)
   android_12:
+    # AQUÍ es donde debe ir la imagen para que Android 12+ no la corte
     image: assets/img/LOGOV2.png
     color: "#F2E8D5"
-    
+    # Esta es la propiedad mágica para Android 12 en esta librería:
+    icon_background_color: "#F2E8D5"
+
   fullscreen: true
